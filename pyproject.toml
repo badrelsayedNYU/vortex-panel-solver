@@ -12,6 +12,10 @@ dependencies = ["numpy>=1.26", "scipy>=1.11", "matplotlib>=3.8", "pandas>=2.1"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
+app = ["streamlit>=1.30"]
+
+[project.scripts]
+airfoil-analyze = "panel.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

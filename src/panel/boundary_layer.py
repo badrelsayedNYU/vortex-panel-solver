@@ -183,7 +183,7 @@ def split_surfaces(solution):
     return upper, lower
 
 
-def viscous_drag(solution, re, x_end=X_END):
+def viscous_drag(solution, re, x_end=X_END, x_trip=None):
     """Profile drag C_d = sum over both surfaces of 2 theta_TE (U_e,TE)^((H_TE + 5)/2)  (spec §6).
 
     Each surface is marched only to x/c = x_end (default 0.99) and Squire–Young is applied there.
@@ -191,10 +191,10 @@ def viscous_drag(solution, re, x_end=X_END):
     chord (Cp about +0.6 on the last panel); a real boundary layer never sees this because the wake
     removes it, and marching into it triggers spurious turbulent separation. The drag is
     insensitive to the exact cutoff: NACA 0012, Re = 1e6, alpha = 0 gives C_d = 0.0076 / 0.0076 /
-    0.0075 for x_end = 0.995 / 0.99 / 0.98.
+    0.0075 for x_end = 0.995 / 0.99 / 0.98. x_trip forces transition at that x/c on both surfaces.
     """
     (su, xu, uu), (sl, xl, ul) = split_surfaces(solution)
     ku, kl = xu <= x_end, xl <= x_end
-    upper = march_surface(su[ku], xu[ku], uu[ku], re)
-    lower = march_surface(sl[kl], xl[kl], ul[kl], re)
+    upper = march_surface(su[ku], xu[ku], uu[ku], re, x_trip)
+    lower = march_surface(sl[kl], xl[kl], ul[kl], re, x_trip)
     return ViscousResult(upper.cd + lower.cd, upper, lower)
