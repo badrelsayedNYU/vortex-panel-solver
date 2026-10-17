@@ -1,6 +1,6 @@
 # Vortex Panel Method Airfoil Solver
 
-**Live app:** _link added after deployment to Streamlit Community Cloud_ &nbsp;·&nbsp; **CLI:** `airfoil-analyze --naca 2412 --alpha -4:12:1 --mach 0,0.3,0.5 --re 1e6 --out results/`
+**Live app: [vortex-panel-solver.streamlit.app](https://vortex-panel-solver.streamlit.app/)** &nbsp;·&nbsp; **CLI:** `airfoil-analyze --naca 2412 --alpha -4:12:1 --mach 0,0.3,0.5 --re 1e6 --out results/`
 
 A linear-strength vortex panel solver for 2D airfoils, validated against an exact conformal-map solution and thin-airfoil theory, extended with Prandtl–Glauert and Kármán–Tsien compressibility corrections, a critical-Mach analysis, an integral boundary-layer drag estimate, and an analysis tool (command line and web app) built entirely on this solver.
 
