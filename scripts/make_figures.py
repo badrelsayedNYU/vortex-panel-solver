@@ -1,4 +1,4 @@
-"""Regenerate the validation figures in figures/.
+"""Regenerate every figure in figures/ and table in results/.
 
 Usage: python scripts/make_figures.py
 """
@@ -8,6 +8,10 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
+import convergence
+import drag_polar
+import mcrit
+import xfoil_compare
 from panel.field import inside, stagnation_point, velocity
 from panel.geometry import KarmanTrefftz, load_selig, naca4, read_selig
 from panel.solver import PanelSolver
@@ -234,6 +238,10 @@ def main():
     fig_kt_validation()
     fig_thin_airfoil()
     fig_streamlines()
+    convergence.main()
+    mcrit.main()
+    drag_polar.main()
+    xfoil_compare.main()
 
 
 if __name__ == "__main__":
