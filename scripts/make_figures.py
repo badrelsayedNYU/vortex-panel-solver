@@ -8,6 +8,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
+from panel.field import inside, stagnation_point, velocity
 from panel.geometry import KarmanTrefftz, load_selig, naca4, read_selig
 from panel.solver import PanelSolver
 from panel.validation import (kt_exact_at_panels, kt_exact_cl, kt_exact_cp,
@@ -188,12 +189,51 @@ def fig_thin_airfoil():
     print(f"wrote {out}")
 
 
+def fig_streamlines(code="2412", alpha=8.0, N=200):
+    """Milestone 5: streamlines and the pressure field, with the stagnation point marked."""
+    af = naca4(code, n_panels=N, closed_te=True)
+    res = PanelSolver(af).solve(alpha)
+    xs, ys = stagnation_point(res)
+    fig, axes = plt.subplots(1, 2, figsize=(14, 4.8), layout="constrained",
+                             gridspec_kw={"width_ratios": [1.9, 1]})
+    for ax, (x0, x1, y0, y1, n, density) in zip(axes, ((-0.6, 1.8, -0.6, 0.6, 360, 2.2),
+                                                       (-0.08, 0.12, -0.08, 0.06, 260, 2.0))):
+        X, Y = np.meshgrid(np.linspace(x0, x1, n), np.linspace(y0, y1, int(n * (y1 - y0) / (x1 - x0))))
+        U, V = velocity(af, res.gamma, alpha, X, Y)
+        mask = inside(af, X, Y)
+        U, V = np.ma.array(U, mask=mask), np.ma.array(V, mask=mask)
+        cp = 1.0 - (U**2 + V**2)
+        pc = ax.contourf(X, Y, cp, levels=np.linspace(-2.5, 1.0, 36), cmap="RdBu_r", extend="both")
+        ax.streamplot(X, Y, U, V, density=density, color="k", linewidth=0.6, arrowsize=0.6)
+        ax.fill(af.X, af.Y, color="0.75", zorder=3)
+        ax.plot(af.X, af.Y, color="k", lw=0.8, zorder=4)
+        ax.plot(xs, ys, "o", color="gold", mec="k", ms=7, zorder=5, label="stagnation point")
+        ax.plot(af.X[0], af.Y[0], "s", color="gold", mec="k", ms=6, zorder=5,
+                label="trailing edge (Kutta: smooth outflow)")
+        ax.set_xlim(x0, x1)
+        ax.set_ylim(y0, y1)
+        ax.set_aspect("equal")
+        ax.set_xlabel("$x/c$")
+        ax.set_ylabel("$y/c$")
+        ax.grid(False)
+    fig.colorbar(pc, ax=axes, label="$C_p$", shrink=0.9)
+    axes[0].set_title(fr"NACA {code}, $\alpha$ = {alpha:g}°, $C_l$ = {res.cl_kj:.3f} (inviscid, N = {N})")
+    axes[1].set_title(f"Leading edge: stagnation at x/c = {xs:.4f}, y/c = {ys:.4f}")
+    axes[1].set_xticks([-0.05, 0.0, 0.05, 0.1])
+    axes[0].legend(loc="lower right", fontsize=8)
+    out = FIG_DIR / "streamlines.png"
+    fig.savefig(out)
+    plt.close(fig)
+    print(f"wrote {out}")
+
+
 def main():
     FIG_DIR.mkdir(exist_ok=True)
     fig_geometry()
     fig_cp_basic()
     fig_kt_validation()
     fig_thin_airfoil()
+    fig_streamlines()
 
 
 if __name__ == "__main__":
