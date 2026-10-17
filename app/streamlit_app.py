@@ -125,7 +125,7 @@ with tabs[4]:
 with tabs[5]:
     summ = summary(df)
     st.table(pd.Series({k: f"{v:.4g}" for k, v in summ.items()}, name="value"))
-    st.dataframe(df, use_container_width=True)
+    st.dataframe(df, width="stretch")
     st.download_button("Download sweep (CSV)", df.to_csv(index=False), "sweep.csv", "text/csv")
     st.download_button("Download summary (JSON)", json.dumps(summ, indent=2, default=float),
                        "summary.json", "application/json")
