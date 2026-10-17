@@ -13,96 +13,99 @@ You will produce **8 small text files** (about 15 minutes):
 
 ---
 
-## Step 1: Get XFOIL (Windows)
+## On a Mac (XFOIL is already installed on this machine)
 
-XFOIL has no ready-made Mac version, so use a Windows PC (an NYU lab machine is fine).
+XFOIL 6.99 was compiled from the official MIT source into `~/Tools/Xfoil` and is available
+as the `xfoil` command. The files are written straight into this folder, so nothing needs copying.
 
-1. Go to **https://web.mit.edu/drela/Public/web/xfoil/**
-2. Under the downloads, click **XFOIL 6.99 for Windows** (a file named like `XFOIL6.99.zip`).
-3. Unzip it to a short folder, e.g. **`C:\xfoil`**. Inside you should see `xfoil.exe`.
+### Step 1: Open Terminal in this folder
 
-## Step 2: Copy the geometry files
-
-1. From this folder, copy the **`geometry`** folder (it holds `naca0012_closedTE.dat` and
-   `naca2412_closedTE.dat`) onto a USB stick or cloud drive.
-2. Put it inside `C:\xfoil`, so the files are at `C:\xfoil\geometry\naca0012_closedTE.dat`.
-
-## Step 3: Start XFOIL
-
-1. Click **Start**, type **`cmd`**, press **Enter**. A black Command Prompt window opens.
-2. Type these two lines (Enter after each):
+1. Press **⌘ + Space**, type **Terminal**, press **Enter**.
+2. Type (Enter after each line):
    ```
-   cd C:\xfoil
+   cd ~/Desktop/Projects/vortex-panel-solver/data/xfoil
    xfoil
    ```
-3. You will see an `XFOIL c>` prompt. XFOIL is now waiting for commands.
+3. You will see an `XFOIL c>` prompt.
 
-## Step 4: NACA 0012
+### Step 2: Turn off plot windows (once per session)
 
-Type each line and press **Enter**. The right column says what it does.
+XFOIL normally draws plots in an X11 window, which this Mac does not have. Type:
+
+| Type this | What it does |
+|---|---|
+| `PLOP` | Opens the plot-options menu |
+| `G` | Turns graphics off |
+| *(just press Enter)* | Back to `XFOIL c>` |
+
+### Step 3: NACA 0012
 
 | Type this | What it does |
 |---|---|
 | `LOAD geometry/naca0012_closedTE.dat` | Loads the exact shape the panel solver uses |
-| `PANE` | Re-spaces XFOIL's own panel nodes on that shape (the shape does not change) |
+| `PANE` | Re-spaces XFOIL's own 160 panel nodes on that shape (the shape does not change) |
 | `OPER` | Enters the analysis menu; the prompt becomes `.OPERi c>` (the `i` = inviscid) |
 | `PACC` | Starts saving a polar (lift/moment table) |
 | `naca0012_polar.txt` | Name of the polar file |
 | *(just press Enter)* | No "dump" file needed |
-| `ALFA 0` | Solves at α = 0°; prints CL and Cm |
+| `ALFA 0` | Solves at α = 0° |
 | `CPWR naca0012_a0.cp` | Writes the surface Cp at this angle |
 | `ALFA 4` | Solves at α = 4° |
 | `CPWR naca0012_a4.cp` | Writes Cp |
 | `ALFA 8` | Solves at α = 8° |
 | `CPWR naca0012_a8.cp` | Writes Cp |
 | `PACC` | Stops saving the polar (closes the file) |
-| *(just press Enter)* | Leaves the OPER menu, back to `XFOIL c>` |
+| *(just press Enter)* | Leaves OPER, back to `XFOIL c>` |
 
-**Write down** the CL that XFOIL prints after each `ALFA` line. At α = 4° expect about 0.48.
+After `LOAD` you will see **"Current airfoil cannot be set."** That is normal: the file has 401
+points, more than XFOIL keeps directly, which is exactly why `PANE` comes next.
 
-## Step 5: NACA 2412
+### Step 4: NACA 2412
 
-Repeat Step 4 exactly, with `2412` in place of `0012` in every file name
-(the first line becomes `LOAD geometry/naca2412_closedTE.dat`). At α = 4° expect CL about 0.74.
+Repeat Step 3 with `2412` in place of `0012` in every file name
+(first line: `LOAD geometry/naca2412_closedTE.dat`). Then type `QUIT`.
 
-Then type `QUIT` to close XFOIL.
+### Step 5: Check the results
 
-## Step 6: Check the files
+Still in Terminal, type:
+```
+ls
+cat naca0012_polar.txt
+```
+`ls` should list the 8 files. At the bottom of the polar file, under a line of dashes:
+```
+   alpha    CL        CD       CDp       CM   ...
+   0.000   0.0000   0.00000  ...      0.0000
+   4.000   0.48..   0.00000  ...     -0.005.
+   8.000   0.96..   ...
+```
+CD is 0 because the run is inviscid. For NACA 2412 expect CL about 0.26, 0.74 and 1.22.
 
-1. Open `C:\xfoil` in File Explorer. You should see the **8 files** listed at the top of this page.
-2. Open `naca0012_a4.cp` in Notepad. It should look roughly like:
-   ```
-   #    x        y        Cp
-     1.00000  0.00000   0.2...
-     0.99...  0.00...   0.1...
-   ```
-3. Open `naca0012_polar.txt`. Near the bottom, under a line of dashes, there are rows like:
-   ```
-     alpha    CL        CD       CDp       CM   ...
-     0.000   0.0000   0.00000   ...      0.0000
-     4.000   0.48..   ...
-   ```
-   CD is 0 because the run is inviscid. That is expected.
+### Step 6: Run the comparison
 
-## Step 7: Bring them to the Mac
-
-Copy the 8 files into this folder on the Mac:
-`~/Desktop/Projects/vortex-panel-solver/data/xfoil/`
-
-Then run `python scripts/xfoil_compare.py` (or ask for it to be run). It writes
-`figures/xfoil_comparison.png` and `results/xfoil_comparison.md`.
+Back in the project folder: `python scripts/xfoil_compare.py` (or ask for it to be run).
+It writes `figures/xfoil_comparison.png` and `results/xfoil_comparison.md`.
 
 ---
+
+## On Windows (alternative)
+
+1. Download **XFOIL 6.99 for Windows** from https://web.mit.edu/drela/Public/web/xfoil/ and unzip it to `C:\xfoil`.
+2. Copy this folder's `geometry` folder into `C:\xfoil`.
+3. Start → `cmd` → Enter, then `cd C:\xfoil` and `xfoil`.
+4. Follow Steps 3–5 above (Windows XFOIL opens plot windows; Step 2 is optional there).
+5. Copy the 8 files into `data/xfoil/` on the Mac.
 
 ## If something goes wrong
 
 | What you see | What to do |
 |---|---|
-| `File not found` after LOAD | Check the path: run `dir geometry` in Command Prompt; the files must be in `C:\xfoil\geometry` |
+| `File not found` after LOAD | You are not in the right folder: `QUIT`, then `cd ~/Desktop/Projects/vortex-panel-solver/data/xfoil` and start again (Windows: files must be in `C:\xfoil\geometry`) |
 | XFOIL asks `Enter airfoil name` | Type `NACA 0012` (or `2412`) and press Enter |
 | `File exists. Overwrite?` | Type `Y` |
 | Prompt is `.OPERv c>` (with a `v`) | Viscous mode is on; type `VISC` once to switch back to inviscid (`.OPERi c>`) |
-| A plot window pops up | Ignore it; it does not affect the files |
+| `Cannot open display` or similar X11 message (Mac) | Graphics are still on: do Step 2 (`PLOP`, `G`, Enter) |
+| CL does not appear on screen after `ALFA` | Normal with graphics off; the values are in the polar file (Step 5) |
 | CL far from 0.48 at α = 4° for NACA 0012 | Probably the wrong file was loaded; `QUIT` and start again |
 
 ---
