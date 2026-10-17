@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from panel.geometry import KarmanTrefftz, load_selig, naca4, read_selig
+from panel.solver import PanelSolver
 
 ROOT = Path(__file__).resolve().parent.parent
 FIG_DIR = ROOT / "figures"
@@ -77,9 +78,40 @@ def fig_geometry():
     print(f"wrote {out}")
 
 
+def fig_cp_basic(N=160):
+    """Milestone 2: Cp on NACA 0012 / 2412 at several alpha, and the open-TE artifact."""
+    fig, axes = plt.subplots(1, 3, figsize=(14, 4.4), layout="constrained")
+    for ax, code in zip(axes[:2], ("0012", "2412")):
+        solver = PanelSolver(naca4(code, n_panels=N, closed_te=True))
+        for alpha, color in ((0, "tab:blue"), (4, "tab:orange"), (8, "tab:red")):
+            res = solver.solve(alpha)
+            ax.plot(res.xc, res.Cp, color=color, lw=1.3,
+                    label=fr"$\alpha$ = {alpha}°,  $C_l$ = {res.cl_kj:.3f}")
+        ax.set_title(f"NACA {code} (closed TE), N = {N}")
+
+    ax = axes[2]
+    for closed, style, label in ((False, "-", "standard open TE (gap not paneled)"),
+                                 (True, "--", "closed TE")):
+        res = PanelSolver(naca4("0012", n_panels=N, closed_te=closed)).solve(0)
+        ax.plot(res.xc, res.Cp, style, lw=1.3, label=label)
+    ax.set_title(r"NACA 0012, $\alpha$ = 0°: trailing-edge closure")
+
+    for ax in axes:
+        ax.invert_yaxis()
+        ax.set_xlabel("$x/c$")
+        ax.set_ylabel("$C_p$")
+        ax.legend(fontsize=8, loc="lower right")
+    fig.suptitle("Linear-strength vortex panel method: surface pressure (inviscid, incompressible)")
+    out = FIG_DIR / "cp_basic.png"
+    fig.savefig(out)
+    plt.close(fig)
+    print(f"wrote {out}")
+
+
 def main():
     FIG_DIR.mkdir(exist_ok=True)
     fig_geometry()
+    fig_cp_basic()
 
 
 if __name__ == "__main__":
