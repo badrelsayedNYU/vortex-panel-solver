@@ -18,6 +18,18 @@ You will produce **8 small text files** (about 15 minutes):
 XFOIL 6.99 was compiled from the official MIT source into `~/Tools/Xfoil` and is available
 as the `xfoil` command. The files are written straight into this folder, so nothing needs copying.
 
+### Quick way (recommended): one command
+
+`run_inviscid.xfoil` in this folder contains every command from Steps 2–4 below, in order.
+In Terminal:
+```
+cd ~/Desktop/Projects/vortex-panel-solver/data/xfoil
+xfoil < run_inviscid.xfoil > xfoil_run.log
+ls
+```
+XFOIL reads the commands from the file, writes the 8 files, and quits (a few seconds).
+Steps 1–5 below do the same thing by hand and explain each command.
+
 ### Step 1: Open Terminal in this folder
 
 1. Press **⌘ + Space**, type **Terminal**, press **Enter**.

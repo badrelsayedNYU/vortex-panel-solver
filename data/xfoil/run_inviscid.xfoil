@@ -1,0 +1,32 @@
+PLOP
+G
+
+LOAD geometry/naca0012_closedTE.dat
+PANE
+OPER
+PACC
+naca0012_polar.txt
+
+ALFA 0
+CPWR naca0012_a0.cp
+ALFA 4
+CPWR naca0012_a4.cp
+ALFA 8
+CPWR naca0012_a8.cp
+PACC
+
+LOAD geometry/naca2412_closedTE.dat
+PANE
+OPER
+PACC
+naca2412_polar.txt
+
+ALFA 0
+CPWR naca2412_a0.cp
+ALFA 4
+CPWR naca2412_a4.cp
+ALFA 8
+CPWR naca2412_a8.cp
+PACC
+
+QUIT
