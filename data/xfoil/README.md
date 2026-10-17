@@ -29,3 +29,8 @@ Repeat with `2412` in place of `0012`. OPER is inviscid unless `VISC` is typed, 
 
 Expected files: `naca{0012,2412}_a{0,4,8}.cp` and `naca{0012,2412}_polar.txt`.
 Then run `python scripts/xfoil_compare.py`.
+
+## Optional: viscous polar for the drag comparison (spec §6)
+
+Same geometry file, then in OPER: `VISC 1e6`, `PACC` -> `naca0012_visc_re1e6.txt`, Enter,
+`ASEQ -4 10 1`, `PACC`. Then run `python scripts/drag_polar.py`; the points are overlaid automatically.

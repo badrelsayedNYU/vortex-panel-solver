@@ -21,6 +21,14 @@ def read_cp(path):
     return data[:, 0], data[:, 1]
 
 
+def read_polar_full(path):
+    """Read an XFOIL polar (PACC) file into arrays: dict with keys alpha, CL, CD, CM."""
+    lines = Path(path).read_text().splitlines()
+    start = next(i for i, ln in enumerate(lines) if ln.strip().startswith("---")) + 1
+    data = np.array([[float(v) for v in ln.split()[:5]] for ln in lines[start:] if len(ln.split()) >= 5])
+    return {"alpha": data[:, 0], "CL": data[:, 1], "CD": data[:, 2], "CM": data[:, 4]}
+
+
 def read_polar(path):
     """Read an XFOIL polar (PACC) file: rows after the dashed separator line, columns
     'alpha CL CD CDp CM ...'. Returns a dict alpha -> (CL, CM)."""
