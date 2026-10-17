@@ -53,7 +53,20 @@ Errors are measured against the exact Kármán–Trefftz solution and, for NACA 
 
 ### Comparison with XFOIL
 
-Inviscid XFOIL results for NACA 0012 and 2412 at α = 0°, 4° and 8° plug into `scripts/xfoil_compare.py`, which overlays them on the panel solution. _The reference data are being generated; the figure appears here once they are in `data/xfoil/`._
+![Panel method vs. XFOIL, inviscid](figures/xfoil_comparison.png)
+
+XFOIL 6.99 (Drela, MIT) was run in inviscid mode on the identical closed-trailing-edge geometry files (`data/xfoil/`, reproducible with `xfoil < run_inviscid.xfoil`). XFOIL is an independent linear-vorticity panel code: it uses a stream-function formulation and its own curvature-based node spacing, so agreement checks the method, not a shared implementation.
+
+| Airfoil | alpha (deg) | C_l panel (N = 160) | C_l XFOIL | difference | C_m panel | C_m XFOIL |
+|---|---|---|---|---|---|---|
+| NACA 0012 | 0 | 0.0000 | 0.0000 | +0.00% | -0.0000 | -0.0000 |
+| NACA 0012 | 4 | 0.4826 | 0.4824 | +0.03% | -0.0059 | -0.0054 |
+| NACA 0012 | 8 | 0.9628 | 0.9624 | +0.04% | -0.0117 | -0.0107 |
+| NACA 2412 | 0 | 0.2595 | 0.2591 | +0.17% | -0.0552 | -0.0553 |
+| NACA 2412 | 4 | 0.7415 | 0.7408 | +0.10% | -0.0614 | -0.0610 |
+| NACA 2412 | 8 | 1.2199 | 1.2190 | +0.07% | -0.0677 | -0.0669 |
+
+Lift agrees to within 0.2% at every point and the pitching moment to within 0.001. The pressure distributions lie on top of each other everywhere except at the very tip of the leading-edge suction peak, where the panel value at N = 160 is up to about 5% less negative at 8° (−4.06 vs. −4.28 on NACA 0012). That is the first-order convergence of $C_{p,\min}$ seen in the convergence study: the peak is sampled at panel midpoints, and XFOIL clusters more nodes in the nose.
 
 ### Trailing edge
 

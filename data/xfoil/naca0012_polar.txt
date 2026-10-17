@@ -1,0 +1,15 @@
+  
+       XFOIL         Version 6.99
+  
+ Calculated polar for: NACA 0012 closed TE (vortex-panel-solver geometr
+  
+ 1 1 Reynolds number fixed          Mach number fixed         
+  
+ xtrf =   1.000 (top)        1.000 (bottom)  
+ Mach =   0.000     Re =     0.000 e 6     Ncrit =   9.000  9.000
+  
+   alpha    CL        CD       CDp       CM     Top_Xtr  Bot_Xtr  Top_Itr  Bot_Itr
+  ------ -------- --------- --------- -------- -------- -------- -------- --------
+   0.000   0.0000   0.00000  -0.00016  -0.0000   0.0000   0.0000   0.0000   0.0000
+   4.000   0.4824   0.00000  -0.00017  -0.0054   0.0000   0.0000   0.0000   0.0000
+   8.000   0.9624   0.00000  -0.00020  -0.0107   0.0000   0.0000   0.0000   0.0000

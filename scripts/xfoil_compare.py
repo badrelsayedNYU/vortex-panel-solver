@@ -51,7 +51,7 @@ def main():
         ax.set_xlabel("$x/c$")
         ax.set_ylabel("$C_p$")
         ax.set_title(f"NACA {code} (closed TE): panel method vs. XFOIL")
-        ax.legend(fontsize=8, loc="lower right")
+        ax.legend(fontsize=8, loc="upper right")
     (ROOT / "results").mkdir(exist_ok=True)
     (ROOT / "results" / "xfoil_comparison.md").write_text("\n".join(lines) + "\n")
     out = ROOT / "figures" / "xfoil_comparison.png"
