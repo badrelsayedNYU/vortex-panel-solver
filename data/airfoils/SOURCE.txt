@@ -1,0 +1,2 @@
+Airfoil coordinate files from the UIUC Airfoil Coordinates Database
+(https://m-selig.ae.illinois.edu/ads/coord_database.html), Selig format.
