@@ -10,6 +10,8 @@ import numpy as np
 
 from panel.geometry import KarmanTrefftz, load_selig, naca4, read_selig
 from panel.solver import PanelSolver
+from panel.validation import (kt_exact_at_panels, kt_exact_cl, kt_exact_cp,
+                              thin_airfoil_alpha_l0)
 
 ROOT = Path(__file__).resolve().parent.parent
 FIG_DIR = ROOT / "figures"
@@ -108,10 +110,90 @@ def fig_cp_basic(N=160):
     print(f"wrote {out}")
 
 
+def fig_kt_validation():
+    """Milestone 3 (§5.1): panel Cp vs. the exact Kármán–Trefftz solution."""
+    kt = KarmanTrefftz(complex(-0.1, 0.1), 10.0)
+    fig, (ax, ax_err) = plt.subplots(1, 2, figsize=(13, 4.6), layout="constrained")
+
+    phi = np.linspace(-kt.beta - 1e-4, -kt.beta - 2 * np.pi + 1e-4, 4000)  # TE excluded (0/0)
+    x_le, chord = kt.chord_transform()
+    x_exact = (kt.z(kt.circle(phi)).real - x_le) / chord
+    af80 = kt.airfoil(80)
+    s80 = PanelSolver(af80)
+    for alpha, color in ((0, "tab:blue"), (4, "tab:orange"), (8, "tab:red")):
+        ax.plot(x_exact, kt_exact_cp(kt, phi, alpha), color="black", lw=1)
+        res = s80.solve(alpha)
+        ax.plot(res.xc, res.Cp, "o", ms=3, mfc="none", color=color,
+                label=fr"$\alpha$ = {alpha}°: $C_l$ = {res.cl_kj:.4f} (exact {kt_exact_cl(kt, alpha):.4f})")
+    ax.plot([], [], color="black", lw=1, label="exact (conformal map)")
+    ax.invert_yaxis()
+    ax.set_xlabel("$x/c$")
+    ax.set_ylabel("$C_p$")
+    ax.set_title(r"Kármán–Trefftz section ($\mu$ = (-0.1, 0.1), $\tau$ = 10°), N = 80")
+    ax.legend(fontsize=8, loc="lower right")
+
+    for N, color in ((80, "tab:gray"), (160, "tab:blue"), (320, "tab:green"), (640, "tab:red")):
+        af = kt.airfoil(N)
+        res = PanelSolver(af).solve(4)
+        err = np.abs(res.Cp - kt_exact_at_panels(af, 4))
+        ax_err.semilogy(res.xc, err, ".", ms=2.5, color=color,
+                        label=f"N = {N}: max {err.max():.3f}, max excl. TE panels {err[2:-2].max():.3f}")
+    ax_err.set_xlabel("$x/c$")
+    ax_err.set_ylabel(r"$|C_p - C_{p,\mathrm{exact}}|$")
+    ax_err.set_title(r"Pointwise error, $\alpha$ = 4°")
+    ax_err.legend(fontsize=7.5, loc="upper center")
+    out = FIG_DIR / "kt_validation.png"
+    fig.savefig(out)
+    plt.close(fig)
+    print(f"wrote {out}")
+
+
+def fig_thin_airfoil():
+    """Milestone 3 (§5.2): C_l(alpha) vs. thin-airfoil theory, and the slope vs. thickness."""
+    fig, (ax, ax_slope) = plt.subplots(1, 2, figsize=(12, 4.4), layout="constrained")
+    alphas = np.arange(-6, 12.1, 1.0)
+    for code, color in (("0006", "tab:blue"), ("0012", "tab:orange"), ("0018", "tab:green"),
+                        ("2412", "tab:red")):
+        s = PanelSolver(naca4(code, n_panels=320, closed_te=True))
+        ax.plot(alphas, [s.solve(a).cl_kj for a in alphas], "o-", ms=3, color=color,
+                label=f"NACA {code}, panel")
+    a_l0 = np.rad2deg(thin_airfoil_alpha_l0(0.02, 0.4))
+    ax.plot(alphas, 2 * np.pi * np.deg2rad(alphas), "k--", lw=1, label=r"thin airfoil, symmetric: $2\pi\alpha$")
+    ax.plot(alphas, 2 * np.pi * np.deg2rad(alphas - a_l0), "k:", lw=1.2,
+            label=fr"thin airfoil, NACA 2412 ($\alpha_{{L0}}$ = {a_l0:.2f}°)")
+    ax.set_xlabel(r"$\alpha$ (deg)")
+    ax.set_ylabel("$C_l$")
+    ax.set_title("Lift curves, N = 320 (inviscid: no stall)")
+    ax.legend(fontsize=8)
+
+    t = np.array([0.06, 0.09, 0.12, 0.15, 0.18])
+    slopes = []
+    for ti in t:
+        s = PanelSolver(naca4(f"00{int(round(100 * ti)):02d}", n_panels=320, closed_te=True))
+        cl = [s.solve(a).cl_kj for a in (-2.0, 0.0, 2.0)]
+        slopes.append(np.rad2deg(np.polyfit([-2.0, 0.0, 2.0], cl, 1)[0]) / (2 * np.pi))
+    k, b = np.polyfit(t, slopes, 1)
+    tt = np.linspace(0, 0.2, 50)
+    ax_slope.plot(t, slopes, "o", color="tab:blue", label="panel method, NACA 00xx")
+    ax_slope.plot(tt, k * tt + b, "--", color="tab:blue", lw=1,
+                  label=fr"linear fit: $C_{{l,\alpha}}/2\pi$ = {b:.3f} + {k:.2f} $t/c$")
+    ax_slope.axhline(1.0, color="black", lw=1, label=r"thin airfoil: $2\pi$")
+    ax_slope.set_xlabel("thickness ratio $t/c$")
+    ax_slope.set_ylabel(r"$C_{l,\alpha}\,/\,2\pi$")
+    ax_slope.set_title("Lift slope tends to $2\\pi$ as thickness vanishes")
+    ax_slope.legend(fontsize=8)
+    out = FIG_DIR / "thin_airfoil.png"
+    fig.savefig(out)
+    plt.close(fig)
+    print(f"wrote {out}")
+
+
 def main():
     FIG_DIR.mkdir(exist_ok=True)
     fig_geometry()
     fig_cp_basic()
+    fig_kt_validation()
+    fig_thin_airfoil()
 
 
 if __name__ == "__main__":
