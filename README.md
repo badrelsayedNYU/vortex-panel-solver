@@ -2,7 +2,7 @@
 
 A linear-strength vortex panel solver for 2D airfoils, with compressibility corrections, a critical-Mach analysis, and an airfoil analysis tool built on top.
 
-> **Work in progress.** Done: geometry, the core panel solve (Cp, C_l, C_m), and validation against the exact Kármán–Trefftz solution and thin-airfoil theory. Also done: panel convergence study and streamlines. In progress: XFOIL comparison (awaiting reference data), compressibility, and the analysis tool.
+> **Work in progress.** Done: geometry, the core panel solve (Cp, C_l, C_m), and validation against the exact Kármán–Trefftz solution and thin-airfoil theory. Also done: panel convergence study, streamlines, and compressibility corrections with critical-Mach studies. In progress: XFOIL comparison (awaiting reference data) and the analysis tool.
 
 ## Features
 - NACA 4-digit and Selig `.dat` geometry with cosine panel spacing
