@@ -10,8 +10,9 @@ import matplotlib
 matplotlib.use("Agg")
 import pandas as pd  # noqa: E402
 import streamlit as st  # noqa: E402
+import matplotlib.pyplot as plt  # noqa: E402
 
-from panel import plots  # noqa: E402
+from panel import plots, exploration  # noqa: E402
 from panel.analysis import cp_distributions, make_airfoil, summary, sweep  # noqa: E402
 from panel.atmosphere import flight_to_mach_re  # noqa: E402
 
@@ -102,7 +103,8 @@ if "separated" in df and df["separated"].any():
     st.warning(f"{int(df['separated'].sum())} points separate before the trailing edge: drag and L/D "
                "are unreliable there (open red circles).")
 
-tabs = st.tabs(["Geometry", "Lift & moment", "Pressure", "Critical Mach", "Drag", "Summary & data"])
+tabs = st.tabs(["Geometry", "Lift & moment", "Pressure", "Critical Mach", "Drag", "Summary & data",
+                "Flow field", "Convergence", "Validation"])
 with tabs[0]:
     st.pyplot(plots.plot_geometry(airfoil))
 with tabs[1]:
@@ -129,3 +131,52 @@ with tabs[5]:
     st.download_button("Download sweep (CSV)", df.to_csv(index=False), "sweep.csv", "text/csv")
     st.download_button("Download summary (JSON)", json.dumps(summ, indent=2, default=float),
                        "summary.json", "application/json")
+
+with tabs[6]:
+    st.caption("Streamlines and Cp use the incompressible, inviscid solution for the selected geometry. "
+               "Mach corrections and the boundary layer are not applied to this field.")
+    field_alpha = st.number_input("Flow-field angle of attack (deg)", value=4.0, min_value=-20.0, max_value=20.0)
+    if st.button("Compute flow field"):
+        with st.spinner("Computing velocity and pressure outside the airfoil…"):
+            fig = exploration.flow_field(airfoil, field_alpha)
+            st.pyplot(fig)
+            plt.close(fig)
+
+with tabs[7]:
+    st.caption("Re-solve the selected airfoil at 40, 80, 160, and 320 panels. Errors are differences "
+               "from a 640-panel numerical reference, not an exact solution; Mach and viscous corrections are excluded.")
+    study_alpha = st.number_input("Convergence angle of attack (deg)", value=4.0, min_value=-20.0, max_value=20.0)
+    if st.button("Run panel convergence"):
+        with st.spinner("Solving the refinement study…"):
+            if dat_bytes is None:
+                study = exploration.convergence(naca=naca, alpha_deg=study_alpha)
+            else:
+                with tempfile.NamedTemporaryFile(suffix=".dat") as tmp:
+                    tmp.write(dat_bytes)
+                    tmp.flush()
+                    study = exploration.convergence(dat=tmp.name, alpha_deg=study_alpha)
+            fig = exploration.convergence_figure(study, study_alpha)
+            st.pyplot(fig)
+            plt.close(fig)
+            st.dataframe(study, width="stretch", hide_index=True)
+            st.download_button("Download panel convergence (CSV)", study.to_csv(index=False),
+                               "panel_convergence.csv", "text/csv")
+
+with tabs[8]:
+    st.caption("Independent benchmark cases. These reference geometries are separate from the sidebar selection.")
+    reference = st.radio("Validation reference", ["Exact Kármán–Trefftz", "XFOIL inviscid"], horizontal=True)
+    if reference == "Exact Kármán–Trefftz":
+        st.write("A conformal map gives an exact potential-flow solution for a cambered airfoil with a 10° trailing-edge angle.")
+        fig, table = exploration.exact_validation()
+        st.caption("Fixed reference: circle centre −0.1 + 0.1i, alpha = 4°, N = 160. "
+                   "The trailing-edge Cp discrepancy reflects the slowly vanishing exact wedge velocity.")
+    else:
+        ref_code = st.selectbox("Reference airfoil", ["0012", "2412"])
+        ref_alpha = st.selectbox("Reference angle (deg)", [0, 4, 8], index=1)
+        fig, table = exploration.xfoil_validation(Path(__file__).resolve().parent.parent / "data/xfoil",
+                                                  ref_code, ref_alpha)
+        st.caption("XFOIL 6.99 inviscid runs on the repository’s closed-trailing-edge geometries. "
+                   "This validates the inviscid core; it does not validate the drag estimate.")
+    st.pyplot(fig)
+    plt.close(fig)
+    st.dataframe(table, width="stretch", hide_index=True)

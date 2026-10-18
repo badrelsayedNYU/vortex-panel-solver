@@ -4,7 +4,7 @@
 
 A linear-strength vortex panel solver for 2D airfoils, validated against an exact conformal-map solution and thin-airfoil theory, extended with Prandtl–Glauert and Kármán–Tsien compressibility corrections, a critical-Mach analysis, an integral boundary-layer drag estimate, and an analysis tool (command line and web app) built entirely on this solver.
 
-*Badr Elsayed. Python / NumPy / SciPy, vectorized; 104 automated tests.*
+*Badr Elsayed. Python / NumPy / SciPy, vectorized; 115 automated tests.*
 
 ![Streamlines and pressure field around a NACA 2412 at 8°](figures/streamlines.png)
 
@@ -101,7 +101,7 @@ airfoil-analyze --dat data/airfoils/e387.dat --alpha 0:10:0.5 --flight 50,1000,0
 
 Flow conditions are given either directly as Mach and Reynolds lists or as flight speed, altitude and chord, converted with the 1976 US Standard Atmosphere and Sutherland's law. **Physics note:** in the inviscid, incompressible solution $C_l$ and $C_p$ do not depend on velocity; velocity enters only through Mach (compressibility) and Reynolds (boundary layer). Validity is shown, never hidden: points at or above $M_{cr}$ are greyed out, points whose boundary layer separates before the trailing edge are marked, and every output carries the reminder that the inviscid method does not predict stall.
 
-The web app (`streamlit run app/streamlit_app.py`) exposes the same inputs and plots with CSV download, and contains no physics of its own.
+The web app (`streamlit run app/streamlit_app.py`) exposes the same inputs and plots with CSV download. Its Flow field tab plots incompressible streamlines and pressure around the selected geometry. Convergence compares 40–320 panels against a 640-panel numerical reference. Validation overlays the panel solution against the exact Kármán–Trefftz solution or the checked-in inviscid XFOIL benchmarks. All calculations reuse the library.
 
 ## Limitations and next steps
 
@@ -114,7 +114,7 @@ The web app (`streamlit run app/streamlit_app.py`) exposes the same inputs and p
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev,app]"
-pytest                               # 104 tests
+pytest                               # 115 tests
 python scripts/make_figures.py       # every figure in figures/ and table in results/
 ```
 
