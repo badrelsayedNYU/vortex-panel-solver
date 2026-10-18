@@ -1,7 +1,7 @@
 """`airfoil-analyze`: sweep an airfoil over alpha x Mach x Re with this repo's panel solver (spec §6b).
 
 Examples:
-  airfoil-analyze --naca 2412 --alpha -4:12:1 --mach 0,0.3,0.5 --re 1e6 --out results/
+  airfoil-analyze --naca 2412 --alpha=-4:12:1 --mach 0,0.3,0.5 --re 1e6 --out results/
   airfoil-analyze --dat e387.dat --alpha 0:10:0.5 --flight 50,1000,0.3 --out results/
 """
 

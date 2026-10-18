@@ -70,7 +70,7 @@ def test_summary_values():
 
 def test_cli_smoke(tmp_path):
     out = tmp_path / "res"
-    assert main(["--naca", "2412", "--alpha", "-2:6:2", "--mach", "0,0.5", "--re", "1e6",
+    assert main(["--naca", "2412", "--alpha=-2:6:2", "--mach", "0,0.5", "--re", "1e6",
                  "--n", "80", "--out", str(out)]) == 0
     for name in ("sweep.csv", "summary.json", "cp.csv", "geometry.png", "cl_alpha.png", "cm_alpha.png",
                  "mcr_alpha.png", "cp.png", "drag_polar.png", "cd_alpha.png", "ld_alpha.png",

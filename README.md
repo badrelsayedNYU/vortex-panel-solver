@@ -1,6 +1,6 @@
 # Vortex Panel Method Airfoil Solver
 
-**Live app: [vortex-panel-solver.streamlit.app](https://vortex-panel-solver.streamlit.app/)** &nbsp;·&nbsp; **CLI:** `airfoil-analyze --naca 2412 --alpha -4:12:1 --mach 0,0.3,0.5 --re 1e6 --out results/`
+**Live app: [vortex-panel-solver.streamlit.app](https://vortex-panel-solver.streamlit.app/)** &nbsp;·&nbsp; **CLI:** `airfoil-analyze --naca 2412 --alpha=-4:12:1 --mach 0,0.3,0.5 --re 1e6 --out results/`
 
 A linear-strength vortex panel solver for 2D airfoils, validated against an exact conformal-map solution and thin-airfoil theory, extended with Prandtl–Glauert and Kármán–Tsien compressibility corrections, a critical-Mach analysis, an integral boundary-layer drag estimate, and an analysis tool (command line and web app) built entirely on this solver.
 
@@ -95,7 +95,7 @@ The trends are physically right: a drag bucket around the design lift, lower dra
 `sweep(airfoil, alphas, machs, reynolds)` returns one row per α × M × Re with lift, moment, minimum pressure, critical Mach, drag, transition and validity flags. The influence matrix depends only on geometry, not on α, so it is **LU-factorized once** and reused for every angle in the sweep; Mach and Reynolds enter only through post-processing, so a full sweep costs little more than a single solve.
 
 ```bash
-airfoil-analyze --naca 2412 --alpha -4:12:1 --mach 0,0.3,0.5 --re 1e6 --out results/
+airfoil-analyze --naca 2412 --alpha=-4:12:1 --mach 0,0.3,0.5 --re 1e6 --out results/
 airfoil-analyze --dat data/airfoils/e387.dat --alpha 0:10:0.5 --flight 50,1000,0.3 --out results/
 ```
 
