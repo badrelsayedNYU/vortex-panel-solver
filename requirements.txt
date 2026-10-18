@@ -3,4 +3,5 @@ scipy>=1.11
 matplotlib>=3.8
 pandas>=2.1
 streamlit>=1.50
-.
+# Keep the hosted app on the checked-out solver source when GitHub updates it.
+-e .
